@@ -261,6 +261,38 @@
             z-index: 10;
         }
 
+        /* Custom Scrollbar Styles */
+        ::-webkit-scrollbar {
+            width: 8px; /* Slimmer width */
+        }
+
+        /* The track (background) */
+        ::-webkit-scrollbar-track {
+            background: var(--bg-deep); 
+        }
+
+        /* The thumb (the part you grab) */
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.2); /* Subtle blue tint */
+            border-radius: 100px;
+            border: 2px solid var(--bg-deep); /* Creates a "floating" effect */
+            transition: background 0.3s ease;
+        }
+
+        /* Hover effect on the thumb */
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.5); /* Brightens when you hover */
+        }
+
+        /* Light Mode specific scrollbar */
+        [data-theme="light"] ::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+
+        [data-theme="light"] ::-webkit-scrollbar-thumb {
+            background: rgba(37, 99, 235, 0.2);
+            border: 2px solid #f8fafc;
+        }
 
         /* Responsive Fixes for Scrolled Notch */
         @media (max-width: 768px) {
