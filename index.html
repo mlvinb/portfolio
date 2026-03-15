@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melvin Biju | Creative Dev</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+                /* Dark Mode Defaults */
+                --bg-deep: #0a0a0a;
+                --bg-card: rgba(23, 23, 23, 0.6);
+                --text-main: #ffffff;
+                --text-dim: #94a3b8;
+                --accent-blue: #3b82f6; 
+                --mini-blue: rgba(59, 130, 246, 0.05);
+                --border-color: rgba(255, 255, 255, 0.1);
+                --grid-color: rgba(255, 255, 255, 0.02);
+                --notch-bg: rgba(15, 15, 15, 0.8);
+            }
+
+            /* 1. HIGH-CONTRAST LIGHT MODE FIX */
+            [data-theme="light"] {
+                --bg-deep: #f8fafc; 
+                --bg-card: #ffffff; 
+                --text-main: #0f172a; /* Deep Navy - much more visible */
+                --text-dim: #475569;  /* Slate Gray */
+                --accent-blue: #2563eb; 
+                --mini-blue: rgba(37, 99, 235, 0.1); /* Darker blue tint for badges */
+                --border-color: rgba(15, 23, 42, 0.15); /* Stronger border for card definition */
+                --grid-color: rgba(15, 23, 42, 0.04);
+                --notch-bg: rgba(255, 255, 255, 0.9);
+            }
+
+            /* Force specific visibility for the "Available for Freelance" box */
+            [data-theme="light"] .status-box {
+                background: rgba(37, 99, 235, 0.08) !important;
+                border: 1px solid rgba(37, 99, 235, 0.2) !important;
+            }
+            
+            [data-theme="light"] .status-text {
+                color: #1e40af !important; /* Deep blue for status text */
+            }
+
+            /* Ensure text in right-side bento cards is visible */
+            .bento-card h3 { color: var(--text-main); }
+            .bento-card p { color: var(--text-dim); }
+            .bento-card .mono { color: var(--accent-blue); }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-deep); 
+            color: var(--text-main); 
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-attachment: fixed;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        .bento-card { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            border-radius: 24px; 
+            backdrop-filter: blur(12px);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); 
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03);
+            color: var(--text-main);
+        }
+
+        /* Global text rules for cards that respect the theme */
+        .bento-card h3, .bento-card h2, .bento-card .card-title { color: var(--text-main); }
+        .bento-card p, .bento-card .card-desc { color: var(--text-dim); }
+
+        .bento-card:hover { 
+            border-color: var(--accent-blue); 
+            transform: translateY(-6px); 
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1), 0 0 15px rgba(59, 130, 246, 0.05);
+        }
+        /* Prevent Project Cards from changing in Light Mode */
+        .bento-card.group {
+            --bg-card: rgba(23, 23, 23, 0.6) !important;
+            --text-main: #ffffff !important;
+            --text-dim: #94a3b8 !important;
+            --border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Ensure the titles and descriptions inside project cards stay white */
+        .bento-card.group h3, 
+        .bento-card.group p, 
+        .bento-card.group .project-desc {
+            color: #ffffff !important;
+        }
+
+        /* Ensure the Learn More / View Project links stay readable */
+        .bento-card.group a {
+            color: #60a5fa !important; /* Slightly brighter blue for dark backgrounds */
+        }
+        /* Subtle Glow Lines */
+        .blue-gradient-text {
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+         /* Notch Navigation Styles */
+        .nav-container {
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            width: 100%;
+            padding: 2rem 3rem;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden; /* Important to clip the progress bar */
+            border: 1px solid transparent;
+        }
+
+        .nav-container.scrolled {
+            width: auto;
+            min-width: 500px;
+            top: 1.5rem;
+            padding: 0.85rem 2.5rem;
+            background: var(--notch-bg);
+            backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid transparent;
+            border-radius: 100px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            gap: 4rem;
+        }
+
+        /* Notch Progress Bar Integration */
+        .notch-progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(15, 23, 42, 0.03);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            overflow: hidden; 
+        }
+
+        .nav-container.scrolled .notch-progress-container {
+            opacity: 1;
+        }
+
+        #notch-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, transparent, var(--accent-blue));
+            box-shadow: 0 0 8px var(--accent-blue);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--accent-blue);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.45);
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .sexy-hollow {
+            -webkit-text-stroke: 1px var(--border-color);
+            -webkit-text-fill-color: transparent;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+
+        /* Theme Toggle Button */
+        #theme-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            background: rgba(120, 120, 120, 0.1);
+        }
+
+        #theme-toggle:hover {
+            background: rgba(120, 120, 120, 0.2);
+        }
+
+        /* Mobile Dropdown Styling */
+        /* Update this section in your <style> */
+        #mobile-dropdown {
+            display: none; /* Change from flex to none */
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: var(--notch-bg);
+            backdrop-filter: blur(24px);
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 0;
+            z-index: 99;
+        }
+
+        #mobile-dropdown.active {
+            display: flex; /* Switch back to flex when active */
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Improved Project Card Overlays */
+        .project-overlay {
+            position: absolute;
+            inset: 0;
+            /* This creates a gradient from transparent at the top to 80% black at the bottom */
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%);
+            z-index: 5;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Ensure text is always above the overlay */
+        .project-content {
+            position: relative;
+            z-index: 10;
+        }
+
+
+        /* Responsive Fixes for Scrolled Notch */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 1.5rem;
+            }
+            .nav-container.scrolled {
+                min-width: 90%;
+                gap: 1.5rem;
+                padding: 0.75rem 1.5rem;
+            }
+            .nav-container.scrolled .nav-links-wrapper {
+                display: none; /* Hide links on mobile scroll to keep it a notch */
+            }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <nav id="main-nav" class="nav-container fixed z-[100] flex justify-between items-center">
+        <div class="text-xl font-black tracking-tighter uppercase" style="color: var(--nav-text);">MelvinBiju.</div>
+        
+        <div class="hidden md:flex items-center gap-10">
+            <div class="flex gap-10 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 nav-links-wrapper">
+                <a href="#about" class="nav-link relative hover:opacity-100 transition-opacity">About</a>
+                <a href="#work" class="nav-link relative hover:opacity-100 transition-opacity">Work</a>
+                <a href="#contact" class="nav-link relative hover:opacity-100 transition-opacity">Contact</a>
+            </div>
+            
+            <!-- Theme Toggle -->
+            <div id="theme-toggle" title="Toggle Theme">
+                <svg id="theme-icon-sun" class="hidden w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
+                <svg id="theme-icon-moon" class="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Toggle -->
+        <div class="md:hidden text-current cursor-pointer hover:text-blue-500 transition-colors" id="menu-toggle">
+            <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+        </div>
+
+        <!-- The Progress Bar inside the Notch -->
+        <div class="notch-progress-container">
+            <div id="notch-progress-bar"></div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-dropdown" class="absolute top-full left-0 w-full bg-[var(--bg-deep)] border-b border-white/5 flex-col items-center py-8 gap-6 md:hidden backdrop-blur-3xl">
+            <a href="#about" class="mobile-nav-item mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] font-bold">About</a>
+            <a href="#work" class="mobile-nav-item mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] font-bold">Work</a>
+            <a href="#contact" class="mobile-nav-item mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] font-bold">Contact</a>
+            <div class="flex items-center gap-4 pt-4 border-t border-white/5 w-full justify-center">
+                <span class="mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Switch Theme</span>
+                <div id="theme-toggle-mobile" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center cursor-pointer">
+                    <svg class="sun-icon-mob hidden w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
+                    <svg class="moon-icon-mob w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="min-h-screen flex flex-col justify-center px-6 md:px-20 relative pt-20">
+        <div class="reveal">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="h-[1px] w-8 bg-blue-500"></span>
+                <span class="mono text-blue-400 text-sm block uppercase tracking-widest">
+                    Full Stack Developer & Designer
+                </span>
+            </div>
+
+            <h1 class="text-6xl md:text-9xl font-black tracking-tighter leading-none mb-8 text-[var(--text-main)]">
+                BUILDING <br> <span style="-webkit-text-stroke: 1px var(--border-color); -webkit-text-fill-color: transparent;" class="sexy-hollow">DIGITAL   ‎ </span> IDEAS.
+            </h1>
+
+            <p class="max-w-xl text-lg mb-10 leading-relaxed" style="color: var(--text-dim);">
+                Designer by eye, Developer by trade. Crafting seamless digital products from front-end interfaces to back-end architecture.
+            </p>
+            <div class="flex flex-wrap gap-4">
+                <a href="#work" class="px-8 py-4 btn-primary text-white font-bold rounded-full hover:scale-105 transition-all">
+                    Explore Works
+                </a>
+                <a href="mailto:mlvinbiju@gmail.com" target="_blank" 
+                class="px-8 py-4 border border-blue-500/20 bg-blue-500/5 backdrop-blur-sm rounded-full hover:bg-blue-500/10 transition-colors text-blue-500">
+                    Get in touch
+                </a>
+            </div>
+        </div>
+
+
+    </header>
+    
+       <section id="about" class="px-6 md:px-20 py-24 border-t border-white/5">
+                <h2 class="text-sm mono text-blue-500 mb-12 uppercase tracking-[0.4em]">Section 01 // About Me</h2>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-10">
+                    <div class="md:col-span-7 reveal">
+                        <div class="flex flex-col md:flex-row md:items-end gap-6 mb-12">
+                            <div class="w-32 h-40 bg-slate-800 rounded-3xl overflow-hidden border border-blue-500/20 rotate-[-3deg] hover:rotate-0 transition-transform duration-500 shadow-2xl relative group">
+                                <img src="/assets/melvin.jpg" alt="Melvin Biju" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h2 class="text-5xl md:text-7xl font-black tracking-tighter">Melvin <span class="text-[var(--accent-blue)]">Biju.</span></h2>
+                                <p class="mono text-[var(--text-dim)] uppercase tracking-widest mt-2">The Person Behind the Pixels</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-xl leading-relaxed mb-4 italic font-medium">I’m a developer who actually cares about design.</p>
+                        <p class="text-lg leading-relaxed mb-10 text-[var(--text-dim)]">With a background in Graphic Design and a deep love for Full Stack Dev, I build products that are technically sound and visually stunning.</p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="p-6 bento-card">
+                                <span class="block text-xl font-bold mb-1">Kerala</span>
+                                <span class="text-[10px] mono uppercase text-blue-500 tracking-widest font-bold">Location</span>
+                            </div>
+                            <div class="p-6 bento-card">
+                                <span class="block text-xl font-bold mb-1">Design & Dev</span>
+                                <span class="text-[10px] mono uppercase text-blue-500 tracking-widest font-bold">Focus</span>
+                            </div>
+                            <!-- STATUS BOX FIX -->
+                            <div class="p-6 bento-card status-box flex flex-col justify-center items-center text-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse mb-2 shadow-[0_0_8px_#4ade80]"></div>
+                                <p class="status-text text-[9px] mono uppercase tracking-wider leading-tight font-bold">
+                                    Available for<br>Freelance
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT SIDE CARDS FIX -->
+                    <div class="md:col-span-5 flex flex-col gap-6 reveal">
+                        <div class="p-8 bento-card border-l-4 border-l-blue-500">
+                            <h3 class="mono text-[10px] text-blue-500 uppercase tracking-[0.3em] mb-6 font-bold">Core Expertise</h3>
+                            <ul class="space-y-6">
+                                <li class="flex items-start gap-4">
+                                    <span class="text-blue-500 text-xs mt-1">✦</span>
+                                    <div>
+                                        <p class="font-bold text-lg leading-none">Full Stack Development</p>
+                                        <p class="text-sm mt-2 font-medium">Scalable Web Apps & API Architecture</p>
+                                    </div>
+                                </li>
+                                <li class="flex items-start gap-4">
+                                    <span class="text-blue-500 text-xs mt-1">✦</span>
+                                    <div>
+                                        <p class="font-bold text-lg leading-none">Visual Design</p>
+                                        <p class="text-sm mt-2 font-medium">Branding, UI/UX & Motion Graphics</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="p-8 bento-card flex-grow">
+                            <h3 class="text-lg font-bold mb-6 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                Tech Stack
+                            </h3>
+                            <div class="space-y-6">
+                                <div>
+                                    <p class="text-[10px] mono uppercase tracking-[0.2em] mb-3 font-bold text-[var(--text-dim)]">Languages</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="px-3 py-1.5 rounded-lg mono text-[10px] font-bold bg-[var(--mini-blue)] text-blue-600 border border-[var(--border-color)] uppercase">HTML/CSS</span>
+                                        <span class="px-3 py-1.5 rounded-lg mono text-[10px] font-bold bg-[var(--mini-blue)] text-blue-600 border border-[var(--border-color)] uppercase">JavaScript</span>
+                                        <span class="px-3 py-1.5 rounded-lg mono text-[10px] font-bold bg-[var(--mini-blue)] text-blue-600 border border-[var(--border-color)] uppercase">Python</span>
+                                    </div>
+                                </div>
+        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+    <section id="work" class="px-6 md:px-20 py-24 border-t border-white/5">
+        <div class="flex justify-between items-end mb-12">
+            <div>
+                <h2 class="text-sm mono text-blue-500 mb-2 uppercase tracking-[0.4em]">Section 02 // Work</h2>
+                <h3 class="text-4xl font-bold tracking-tight" style="color: var(--text-main) !important;">Selected Works</h3>
+            </div>
+            <p class="hidden md:block text-slate-500 text-sm italic">01 — 02 projects shown</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            
+            <div class="reveal md:col-span-8 bento-card p-10 min-h-[450px] flex flex-col justify-end group overflow-hidden">
+                <img src="/assets/savvy-hunt.png" 
+                    alt="Savvy Hunt" 
+                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                
+                <div class="project-overlay"></div>
+
+                <div class="project-content mb-auto">
+                    <span class="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-[10px] mono uppercase text-blue-300">Featured • Backend/Design</span>
+                </div>
+                
+                <div class="project-content">
+                    <h3 class="text-4xl font-bold mt-4">Savvy Hunt</h3>
+                    <p class="project-desc mt-2 max-w-sm">Official Dashboard for the interschool event Savvy Hunt.</p>
+                    <div class="mt-8 flex items-center gap-4">
+                        <span class="w-10 h-[1px] bg-blue-500 transition-all group-hover:w-20"></span>
+                        <a href="https://savvy-hunt.vercel.app/" target="_blank" class="text-sm font-bold uppercase tracking-widest text-blue-400">VIEW PROJECT</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal md:col-span-4 bento-card p-10 flex flex-col justify-end group overflow-hidden">
+                <img src="/assets/floodsenselogo.jpg" 
+                    alt="FloodSense" 
+                    class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                
+                <div class="project-overlay"></div>
+
+                <div class="project-content mb-auto">
+                    <span class="px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/40 text-[10px] mono uppercase text-blue-300">Mobile App</span>
+                </div>
+                
+                <div class="project-content">
+                    <h3 class="text-2xl font-bold mt-4">FloodSense</h3>
+                    <p class="project-desc mt-2 text-sm">The Best Real Time Flood Monitoring app.</p>
+                    <a href="https://github.com/roohiiiit/FloodSense" target="_blank" class="mt-6 inline-block text-xs font-bold text-blue-400 hover:underline">LEARN MORE →</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+    <footer id="contact" class="py-32 px-6 text-center border-t border-white/5 relative overflow-hidden">
+        <!-- Glow Backdrop -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
+        <div class="absolute -bottom-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 blur-[120px] rounded-full -z-10"></div>
+
+        <h2 class="text-5xl md:text-8xl font-black mb-8 blue-gradient-text tracking-tighter">LET'S BUILD <br> SOMETHING.</h2>
+        <a href="mailto:mlvinbiju@gmail.com" class="text-xl md:text-2xl text-slate-400 hover:text-blue-400 transition-colors border-b border-slate-800 hover:border-blue-400 pb-2">
+            mlvinbiju@gmail.com
+        </a>
+        
+        <div class="mt-16 flex flex-wrap justify-center gap-12 text-sm mono uppercase tracking-widest text-slate-500">
+            <a href="https://github.com/your-username" target="_blank" class="hover:text-blue-400 transition-all">GitHub</a>
+            <a href="https://linkedin.com/in/your-username" target="_blank" class="hover:text-blue-400 transition-all">LinkedIn</a>
+            <a href="#" target="_blank" class="hover:text-blue-400 transition-all">Twitter</a>
+        </div>
+        
+        <p class="mt-20 text-[10px] mono text-slate-600 uppercase tracking-[0.5em]">© 2024 MELVIN BIJU • CRAFTED WITH LOVE</p>
+    </footer>
+
+    <script>
+
+        // Initialize Lenis
+        const lenis = new Lenis({
+        duration: 1.2, // Higher = more "resistance" / slower stop
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Standard "smooth" curve
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1, // Increase for faster scrolling, decrease for more resistance
+        infinite: false,
+        });
+
+        // Synchronize Lenis with GSAP's ScrollTrigger
+        lenis.on('scroll', ScrollTrigger.update);
+
+        gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+        });
+
+        gsap.ticker.lagSmoothing(0);
+
+        // GSAP Animation Initialization
+        gsap.registerPlugin(ScrollTrigger);
+
+
+        // Navigation Scroll Logic
+        const nav = document.getElementById('main-nav');
+        const progressBar = document.getElementById('notch-progress-bar');
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileDropdown = document.getElementById('mobile-dropdown');
+        const menuIcon = document.getElementById('menu-icon');
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('theme-icon-sun');
+        const moonIcon = document.getElementById('theme-icon-moon');
+
+        // Updated Theme Logic
+        const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+        const sunIconMob = document.querySelector('.sun-icon-mob');
+        const moonIconMob = document.querySelector('.moon-icon-mob');
+
+        let isLight = false;
+
+        function toggleTheme() {
+            isLight = !isLight;
+            document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+            
+            // Toggle Desktop Icons
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+            
+            // Toggle Mobile Icons
+            sunIconMob.classList.toggle('hidden');
+            moonIconMob.classList.toggle('hidden');
+        }
+
+        themeToggle.addEventListener('click', toggleTheme);
+        themeToggleMobile.addEventListener('click', toggleTheme);
+
+        // Combined Scroll Listener
+        window.addEventListener('scroll', () => {
+            // 1. Notch State (Original Logic)
+            if (window.scrollY > 80) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+
+            // 2. Progress Calculation
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            progressBar.style.width = scrolled + "%";
+        });
+
+        // Mobile Menu Logic
+        // Replace your existing menuToggle listener with this:
+        menuToggle.addEventListener('click', () => {
+            mobileDropdown.classList.toggle('active');
+            
+            // Fix: Allow the dropdown to overflow the nav container
+            if (mobileDropdown.classList.contains('active')) {
+                nav.style.overflow = "visible";
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+            } else {
+                nav.style.overflow = "hidden"; // Clip it back when closed
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>';
+            }
+        });
+
+        // Close mobile menu when a link is clicked
+        document.querySelectorAll('.mobile-nav-item').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileDropdown.classList.remove('active');
+                nav.style.overflow = "hidden";
+                // Reset the menu icon back to the "hamburger"
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>';
+            });
+        });
+
+        // Simple reveal animation for sections
+        gsap.utils.toArray(".reveal").forEach((elem) => {
+            gsap.fromTo(elem, 
+                { y: 60, opacity: 0 }, 
+                { 
+                    y: 0, 
+                    opacity: 1, 
+                    duration: 1.2, 
+                    ease: "power4.out",
+                    scrollTrigger: {
+                        trigger: elem,
+                        start: "top 90%", 
+                        toggleActions: "play none none none"
+                    }
+                }
+            );
+        });
+
+        // Hover effect for bento cards (parallax-ish)
+        document.querySelectorAll('.bento-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                
+                card.style.transform = `perspective(1000px) translateY(-6px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) translateY(0) rotateX(0) rotateY(0)`;
+            });
+        });
+    </script>
+</body>
+</html>
